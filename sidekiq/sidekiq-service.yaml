@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    my-service: sidekiq
+  name: sidekiq
+spec:
+  ports:
+    - name: "8011"
+      port: 8011
+      targetPort: 8011
+  selector:
+    my-service: sidekiq
+

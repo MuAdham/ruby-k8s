@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    my-depl: sidekiq
+  name: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      my-depl: sidekiq
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        my-depl: sidekiq
+    spec:
+      containers:
+        - args:
+            - bundle
+            - exec
+            - sidekiq
+          env:
+            - name: CACHE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: CACHE_URL
+                  name: env
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: postgres_secret
+            - name: JOB_WORKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: JOB_WORKER_URL
+                  name: env
+            - name: LISTEN_ON
+              valueFrom:
+                configMapKeyRef:
+                  key: LISTEN_ON
+                  name: env
+            - name: SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: SECRET_TOKEN
+                  name: secret_token
+            - name: WORKER_PROCESSES
+              valueFrom:
+                configMapKeyRef:
+                  key: WORKER_PROCESSES
+                  name: env
+          image: sidekiq
+          name: sidekiq
+          resources: {}
+      restartPolicy: Always

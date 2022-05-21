@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    my-depl: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      my-depl: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        my-depl: redis
+    spec:
+      containers:
+        - image: redis:7.0
+          name: redis
+          ports:
+            - containerPort: 6379
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/redis/data
+              name: drkiq-redis
+      restartPolicy: Always
+      volumes:
+        - name: drkiq-redis
+          persistentVolumeClaim:
+            claimName: drkiq-redis

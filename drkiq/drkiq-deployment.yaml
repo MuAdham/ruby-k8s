@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    my-depl: drkiq
+  name: drkiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      my-depl: drkiq
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        my-depl: drkiq
+    spec:
+      containers:
+        - env:
+            - name: CACHE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: CACHE_URL
+                  name: env
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: postgres_secret
+            - name: JOB_WORKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: JOB_WORKER_URL
+                  name: env
+            - name: LISTEN_ON
+              valueFrom:
+                configMapKeyRef:
+                  key: LISTEN_ON
+                  name: env
+            - name: SECRET_TOKEN
+              secretKeyRef:
+                  key: SECRET_TOKEN
+                  name: secret_token
+            - name: WORKER_PROCESSES
+              valueFrom:
+                configMapKeyRef:
+                  key: WORKER_PROCESSES
+                  name: env
+          image: drkiq
+          name: drkiq
+          ports:
+            - containerPort: 8010
+          volumeMounts:
+            - mountPath: /opt/app
+              name: drkiq-claim0
+      restartPolicy: Always
+      volumes:
+        - name: drkiq-claim0
+          persistentVolumeClaim:
+            claimName: drkiq-claim0

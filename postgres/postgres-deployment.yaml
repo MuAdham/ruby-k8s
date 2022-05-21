@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    my-depl: postgres
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      my-depl: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        my-depl: postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: postgres_secret
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: postgres_secret
+          image: postgres:14.2
+          name: postgres
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: drkiq-postgres
+      restartPolicy: Always
+      volumes:
+        - name: drkiq-postgres
+          persistentVolumeClaim:
+            claimName: drkiq-postgres
